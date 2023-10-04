@@ -1,6 +1,7 @@
 ##Se instala el spacy y el en_core_web_sm
 import json
 import os
+import sys
 import spacy  
 import sqlite3
 
@@ -9,7 +10,7 @@ from collections import defaultdict
 def indexer(documents):
     reverse_index = defaultdict(set)
     for doc_id, document in documents:
-        texto = documento.get("text")
+        texto = document.get("text")
         texto_sobrante = texto
 
         while len(texto_sobrante) > 0:
@@ -46,7 +47,7 @@ def document_generator(ruta):
 
 
 if __name__ == "__main__":
-    ruta = os.argv[2]
+    ruta = sys.argv[1]
     index = indexer(document_generator(ruta))
 
     conn = sqlite3.connect('words1.db')

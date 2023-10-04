@@ -1,23 +1,33 @@
 import sys
 import os
+
 import json
 import re
+
 import asyncio
+
 import aiohttp
 
 
+
 if len(sys.argv) < 2:
+
 	print("Usage: python3 scraper.py <datalake>")
+
 	exit(1)
+
 
 datalake_dir = sys.argv[1]
 
+
 os.makedirs(datalake_dir, exist_ok=True)
 
+
 def transform(id, text: str) -> str:
-	data_res = [
+	attributes = [
+
 		("title", re.compile(r"Title: (.*)", flags=re.IGNORECASE)),
-		("author", re.compile(r"(?:Author|Creator): (.*)", flags=re.IGNORECASE)),
+		("author", re.compile(r"(?:Author|Creator|Contributor): (.*)", flags=re.IGNORECASE)),
 		("date", re.compile(r"Release date: (.*)", flags=re.IGNORECASE)),
 		("lang", re.compile(r"Language: (.*)", flags=re.IGNORECASE))
 	]
@@ -25,7 +35,7 @@ def transform(id, text: str) -> str:
 	end_re = re.compile(r"(\*\*\* END OF (THE|THIS) PROJECT GUTENBERG EBOOK.*?\*\*\*)")
 	data = {}
 	try:
-		for name, pattern_re in data_res:
+		for name, pattern_re in attributes:
 			m = pattern_re.search(text)
 			if m:
 				data[name] = m.group(1)
@@ -37,32 +47,53 @@ def transform(id, text: str) -> str:
 	except AttributeError as e:
 		print(f"Error parsing text for {id}")
 		print(e)
+
 		exit(1)
+
 	return data
 
+
 async def fetch(session, id):
+
 	async with session.get(f"https://www.gutenberg.org/cache/epub/{id}/pg{id}.txt") as response:
+
 		return (await response.text(), response.status)
 
+
 async def save_text(session, id):
+
 		text, status = await fetch(session, id)
+
 		if status != 200:
+
 			print(f"{id} could not be fetched")
+
 			return
+
 		text = text.replace("\r\n", "\n")
 		dat = transform(id, text)
 
+
 		with open(os.path.join(datalake_dir, f"{id}.json"), "w") as f:
+
 			json.dump(dat, f)
+
 		print(f"Saved {id}")
 
+
 async def main():
+
 	async with aiohttp.ClientSession() as session:
+
 		#await asyncio.gather(*[save_text(session, i) for i in range(100, 500)])
+
 		for i in range(0, 1000):
+
 			await save_text(session, i)
+
 		#await save_text(session, 181)
 
 
 if __name__ == "__main__":
+
 	asyncio.run(main())
