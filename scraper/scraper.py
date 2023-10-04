@@ -5,14 +5,12 @@ import re
 import asyncio
 import aiohttp
 
-"""
+
 if len(sys.argv) < 2:
 	print("Usage: python3 scraper.py <datalake>")
 	exit(1)
 
 datalake_dir = sys.argv[1]
-"""
-datalake_dir = "./datalake"
 
 os.makedirs(datalake_dir, exist_ok=True)
 
