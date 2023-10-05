@@ -24,14 +24,17 @@ def transform(id, text: str) -> str:
 	end_re = re.compile(r"(\*\*\* END OF (THE|THIS) PROJECT GUTENBERG EBOOK.*?\*\*\*)")
 	data = {}
 	try:
-		for name, pattern_re in attributes:
-			m = pattern_re.search(text)
+		for attr_name, attr_re in attributes:
+			m = attr_re.search(text)
 			if m:
-				data[name] = m.group(1)
+				data[attr_name] = m.group(1)
 			else :
-				print(f"Couldn't parse {name} for {id}")
+				print(f"Couldn't parse {attr_name} for {id}")
 		start_m = start_re.search(text)
 		end_m = end_re.search(text)
+		if not (start_m and end_m):
+			# this happens, for example, in doc 673
+			return None
 		data["text"] = text[start_m.end():end_m.start()]
 	except AttributeError as e:
 		print(f"Error parsing text for {id}")
@@ -52,6 +55,9 @@ async def save_text(session, id):
 
 		text = text.replace("\r\n", "\n")
 		dat = transform(id, text)
+		if dat is None:
+			print(f"{id} is not a document")
+			return
 
 		with open(os.path.join(datalake_dir, f"{id}.json"), "w") as f:
 			json.dump(dat, f)

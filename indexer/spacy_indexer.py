@@ -25,9 +25,9 @@ def indexer(documents):
 
             nlp = spacy.load("en_core_web_sm")
             doc = nlp(texto_seccion) # Crea un objeto de spacy tipo nlp
-            lexical_tokens = [t.orth_ for t in doc if not t.is_punct | t.is_stop]
+            lexical_tokens = [t.orth_ for t in doc if not (t.is_punct or t.is_stop)]
 
-            unique_tokens = list(set(lexical_tokens))
+            unique_tokens = set(lexical_tokens)
 
                 
             for word in unique_tokens:
@@ -48,19 +48,23 @@ def document_generator(ruta):
 
 
 if __name__ == "__main__":
-    ruta = sys.argv[1]
-    index = indexer(document_generator(ruta))
+    if len(sys.argv) < 3:
+        print("Usage: python spacy_index.py <datalake> <datamart>")
+        exit(1)
+    datalake_dir = sys.argv[1]
+    index = indexer(document_generator(datalake_dir))
+    datamart_path = sys.argv[2]
 
-    conn = sqlite3.connect('words1.db')
+    conn = sqlite3.connect(datamart_path)
     c = conn.cursor()
 
     # Crear la tabla "words" con dos columnas: palabra y lista de libros
-    c.execute("""CREATE TABLE IF NOT EXISTS words1 (
-                Word TEXT,
-                Books INTEGER
+    c.execute("""CREATE TABLE IF NOT EXISTS inv_index (
+                word TEXT,
+                doc_id INTEGER
     )""")
 
-    c.execute("""CREATE TABLE IF NOT EXISTS document (
+    c.execute("""CREATE TABLE IF NOT EXISTS documents (
                 id INTEGER,
                 title TEXT,
                 date TEXT,
@@ -70,14 +74,14 @@ if __name__ == "__main__":
     for word, docs in index.items():
         for doc in docs:
             c.execute("""
-                INSERT OR REPLACE INTO words1 (Word, Books) VALUES (?, ?)
+                INSERT OR REPLACE INTO inv_index (word, doc_id) VALUES (?, ?)
                 """,
                 (word, doc)
             )
 
-    for doc_id, doc in document_generator(ruta):
+    for doc_id, doc in document_generator(datalake_dir):
         c.execute(
-            """INSERT OR REPLACE INTO document (id, title, date, content)
+            """INSERT OR REPLACE INTO documents (id, title, date, content)
             VALUES (?, ?, ?, ?)
             """,
             (doc_id, doc.get("title"), doc.get("date"), doc.get("text"))
