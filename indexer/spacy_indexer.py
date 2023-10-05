@@ -4,6 +4,7 @@ import os
 import sys
 import spacy  
 import sqlite3
+from tqdm import tqdm
 
 from collections import defaultdict
 
@@ -35,7 +36,7 @@ def indexer(documents):
         
 def document_generator(ruta):
     libros = os.listdir(ruta)
-    for libro in libros:
+    for libro in tqdm(libros):
         # Combinamos la ruta completa con el nombre del archivo
         archivo = os.path.join(ruta, libro)
 
