@@ -3,10 +3,10 @@ import json
 import os
 import sys
 import spacy  
-import sqlite3
 from tqdm import tqdm
-
 from collections import defaultdict
+
+from indexer_commons import document_generator, create_datamart
 
 def indexer(documents):
     reverse_index = defaultdict(set)
@@ -34,19 +34,6 @@ def indexer(documents):
                 reverse_index[word].add(doc_id)
     return reverse_index
         
-def document_generator(ruta):
-    libros = os.listdir(ruta)
-    for libro in tqdm(libros):
-        # Combinamos la ruta completa con el nombre del archivo
-        archivo = os.path.join(ruta, libro)
-
-        # Verificamos si el archivo es un archivo JSON
-        if libro.endswith('.json'):
-            doc_id = int(libro[:-5])
-            with open(archivo, 'r', encoding='utf-8') as archivo_json:
-                yield doc_id, json.load(archivo_json)
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python spacy_index.py <datalake> <datamart>")
@@ -54,38 +41,4 @@ if __name__ == "__main__":
     datalake_dir = sys.argv[1]
     index = indexer(document_generator(datalake_dir))
     datamart_path = sys.argv[2]
-
-    conn = sqlite3.connect(datamart_path)
-    c = conn.cursor()
-
-    # Crear la tabla "words" con dos columnas: palabra y lista de libros
-    c.execute("""CREATE TABLE IF NOT EXISTS inv_index (
-                word TEXT,
-                doc_id INTEGER
-    )""")
-
-    c.execute("""CREATE TABLE IF NOT EXISTS documents (
-                id INTEGER,
-                title TEXT,
-                date TEXT,
-                content TEXT
-    )""")
-
-    for word, docs in index.items():
-        for doc in docs:
-            c.execute("""
-                INSERT OR REPLACE INTO inv_index (word, doc_id) VALUES (?, ?)
-                """,
-                (word, doc)
-            )
-
-    for doc_id, doc in document_generator(datalake_dir):
-        c.execute(
-            """INSERT OR REPLACE INTO documents (id, title, date, content)
-            VALUES (?, ?, ?, ?)
-            """,
-            (doc_id, doc.get("title"), doc.get("date"), doc.get("text"))
-        )
-
-    conn.commit()
-    conn.close()
+    create_datamart(datalake_dir, datamart_path, index)
