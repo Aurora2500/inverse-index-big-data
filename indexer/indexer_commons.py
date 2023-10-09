@@ -1,7 +1,7 @@
 import json
 import os
 import sqlite3
-import tqdm
+from tqdm import tqdm
 
 def document_generator(datalake):
 	books = os.listdir(datalake)
