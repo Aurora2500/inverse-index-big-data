@@ -1,4 +1,4 @@
-package org.example;
+package es.ulpgc.bigdata;
 
 import java.io.File;
 

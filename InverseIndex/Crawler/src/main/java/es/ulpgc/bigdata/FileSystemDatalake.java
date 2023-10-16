@@ -1,4 +1,4 @@
-package org.example;
+package es.ulpgc.bigdata;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

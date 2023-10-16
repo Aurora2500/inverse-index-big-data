@@ -1,4 +1,4 @@
-package org.example;
+package es.ulpgc.bigdata;
 
 public class Document {
     private final String title;
