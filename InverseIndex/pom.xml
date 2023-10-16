@@ -12,6 +12,7 @@
         <module>Indexer</module>
         <module>Crawler</module>
         <module>QueryEngine</module>
+        <module>Datamart</module>
     </modules>
 
     <properties>
