@@ -5,6 +5,7 @@ import es.ulpgc.bigdata.inverse_index.datamart.Datamart;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 
 public class FileDatamart implements Datamart {
@@ -45,9 +46,59 @@ public class FileDatamart implements Datamart {
 		return wordFile;
 	}
 
+	private Set<Integer> readWordFile(Path wordFile) throws IOException {
+		byte[] content = Files.readAllBytes(wordFile);
+		Set<Integer> documents = new HashSet<>();
+		for (int i = 0; i < content.length; i += 4) {
+			documents.add(byteToInt(content, i));
+		}
+		return documents;
+	}
+
+	private int byteToInt(byte[] bytes, int offset) {
+		return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
+	}
+
 	@Override
-	public Set<Integer> index(String word) throws Exception {
-		Path wordFile = assertWord(word);
-		
+	public Set<Integer> index(String token) throws Exception {
+		Path wordFile = assertWord(token);
+		return readWordFile(wordFile);
+	}
+
+	@Override
+	public Set<Integer> documents() throws IOException {
+		Set<Integer> documents = new HashSet<>();
+		Files.list(root).flatMap(groupDir -> {
+			try {
+				return Files.list(groupDir);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}).forEach(wordFile -> {
+			try {
+				documents.addAll(readWordFile(wordFile));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return documents;
+	}
+
+	@Override
+	public void add(int document, Set<String> tokens) throws Exception {
+		for (String token: tokens) {
+			Path wordFile = assertWord(token);
+			Set<Integer> documents = readWordFile(wordFile);
+			documents.add(document);
+			byte[] content = new byte[documents.size() * 4];
+			int i = 0;
+			for (int doc: documents) {
+				content[i++] = (byte) (doc >> 24);
+				content[i++] = (byte) (doc >> 16);
+				content[i++] = (byte) (doc >> 8);
+				content[i++] = (byte) (doc);
+			}
+			Files.write(wordFile, content);
+		}
 	}
 }
