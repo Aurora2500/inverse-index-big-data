@@ -124,7 +124,19 @@ The \texttt{Main} class contains the \texttt{main} function, which serves as the
 
 The collaboration among these classes is as follows: The Spark server listens for search requests and, upon receiving a query, forwards it to the \texttt{SqliteReader}. The \texttt{SqliteReader} communicates with the SQLite database to retrieve documents containing the specified keyword. The results are processed and returned to the client in JSON format via the Spark server. This allows users to search for documents based on keywords and receive results efficiently.
 
+\subsection{Datamart}
 
+The Datamart module handles the storage and management of the inverted index. It defines methods for indexing keywords, retrieving documents associated with a keyword, and obtaining a list of all available documents in the index. Two implementations are provided: a SQL-based Datamart using SQLite and a File-based Datamart using file storage.
+\begin{itemize}
+
+\item 
+The SQL-based Datamart in \texttt{SqlDatamart} module stores the inverted index using a SQL database, associating keywords with document lists.
+
+\item 
+The File-based Datamart in \texttt{FileDatamart} module employs file storage to maintain the inverted index, where each keyword corresponds to a file containing document IDs. 
+\end{itemize}
+The Datamart module provides a reliable solution for the storage and retrieval of the inverted index. The choice between provided implementations depends on project requirements and scale.
+File-Based approach is suitable for smaller-scale projects where a full database system might be unnecessary, offering flexibility and efficiency in data storage.
 
 \section{Results and conclusions}
 
