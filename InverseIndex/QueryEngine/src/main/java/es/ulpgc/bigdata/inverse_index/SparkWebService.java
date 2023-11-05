@@ -6,6 +6,8 @@ package es.ulpgc.bigdata.inverse_index;
 import com.google.gson.Gson;
 import spark.Spark;
 
+import java.util.List;
+
 public class SparkWebService {
 
     public void startServerById() {
@@ -39,26 +41,26 @@ public class SparkWebService {
         Spark.port(4567);
 
         Spark.get("/v1/search", (request, response) -> {
-            String id = request.queryParams("word");
+            String word = request.queryParams("word");
 
             try {
-                int documentId = Integer.parseInt(id);
-                Document document = SqliteReader.retrieveDocumentInfo(documentId);
+                SqliteReader sqliteReader = new SqliteReader();  // Crea una instancia de la clase SqliteReader
+                List<String> books = sqliteReader.getBooksForWord(word);
 
-                if (document != null) {
+                if (!books.isEmpty()) {
+                    List<Document> documents = sqliteReader.getMetadataForBooks(books);
                     Gson gson = new Gson();
                     response.type("application/json");
-                    return gson.toJson(document);
+                    return gson.toJson(documents);
                 } else {
                     response.status(404); // Not Found
-                    return "Documento no encontrado para el ID especificado.";
+                    return "Documentos no encontrados para la palabra especificada.";
                 }
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 response.status(400); // Bad Request
-                return "ID no válido. Debe ser un número entero.";
+                return "Error al procesar la solicitud: " + e.getMessage();
             }
         });
     }
 }
-
 
