@@ -49,7 +49,7 @@ public class SqliteReader {
 
             if (resultSet.next()) {
                 String booksStr = resultSet.getString("book");
-                books = Arrays.asList(booksStr.split(", ")); // Supongamos que los libros están separados por comas
+                books = Arrays.asList(booksStr.split(", "));
             }
         } catch (Exception e) {
             e.printStackTrace();
