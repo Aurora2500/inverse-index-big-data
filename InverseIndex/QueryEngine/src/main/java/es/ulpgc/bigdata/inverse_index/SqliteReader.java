@@ -15,7 +15,7 @@ public class SqliteReader {
         String url = "jdbc:sqlite:datamart.db";
 
         try (Connection connection = DriverManager.getConnection(url);
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT book word FROM words WHERE words = ?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT book FROM words WHERE word = ?")) {
             preparedStatement.setString(1, word);
             ResultSet resultSet = preparedStatement.executeQuery();
 
