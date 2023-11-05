@@ -93,6 +93,8 @@ public class Indexer {
 		// get already indexed documents
 		Set<Integer> indexedDocuments = datamart.documents();
 		Set<Integer> datalakeDocuments = datalake.documents();
+		// Start the listener to listen for new documents that may have been added while we were indexing
+		datalake.startListener();
 		datalakeDocuments.removeAll(indexedDocuments);
 		System.out.println("Indexing " + datalakeDocuments.size() + " documents");
 		for (Integer document: datalakeDocuments) {

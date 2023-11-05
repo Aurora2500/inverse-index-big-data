@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 public class FileDatalake {
 	private final Path root;
+	private WatchService ws = null;
 
 	public FileDatalake(Path root) {
 		this.root = root;
@@ -40,9 +41,12 @@ public class FileDatalake {
 		return el.get("text").getAsString();
 	}
 
-	public void blockAndListen(BiConsumer<Integer, String> documentConsumer) throws IOException, InterruptedException {
+	public void startListener() throws IOException {
 		WatchService ws = root.getFileSystem().newWatchService();
 		root.register(ws, java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY);
+	}
+
+	public void blockAndListen(BiConsumer<Integer, String> documentConsumer) throws IOException, InterruptedException {
 		for (;;) {
 			WatchKey key = ws.take();
 			for (var event : key.pollEvents()) {
