@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Scanner;
 
 public class FileSystemDatalake {
     private static File datalakeRoot;
@@ -28,7 +27,7 @@ public class FileSystemDatalake {
     public static void saveText(int id, String text) {
         File file = new File(datalakeRoot, id + ".json");
         try {
-            Map<String, String> dat = LibroGutenberg.transform(id, text);
+            Map<String, String> dat = DocumentParser.transform(id, text);
             if (dat != null) {
                 File jsonFile = new File(datalakeRoot, id + ".json");
                 if (file.exists()){

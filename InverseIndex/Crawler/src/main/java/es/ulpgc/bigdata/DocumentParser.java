@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class LibroGutenberg {
+public class DocumentParser {
 
     public static Map<String, String> transform(int id, String text) {
         //this is a list of tuples where each tuple contains the attribute name and an associated regular expression for searching that attribute in the text
