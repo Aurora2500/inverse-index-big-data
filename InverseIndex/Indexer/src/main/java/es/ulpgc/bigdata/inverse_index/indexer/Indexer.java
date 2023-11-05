@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 
 public class Indexer {
 	private static final int MAX_TOKEN_LENGTH = 20;
-	private static final Set<Character> PUNCTUATION_SET = Set.of('.', ',', ';', ':', '?', '!', '¡', '¿', '(', ')', '*', '"', '[', ']', '“', '$', '’', '/', '\\');
 	private static final Set<Character> TOKEN_INNER_CHAR_SET = Set.of('\'', '-', '_');
 
 	private final FileDatalake datalake;
@@ -27,7 +26,6 @@ public class Indexer {
 		int safeTokenEnd = 0;
 		IndexerState state = IndexerState.OutOfToken;
 
-		Predicate<Character> isWhitespaceOrPunctuation = c -> Character.isWhitespace(c) || PUNCTUATION_SET.contains(c);
 		Predicate<Character> isTokenCharacter = c -> Character.isLetter(c) || Character.isDigit(c);
 
 		BiConsumer<Integer, Integer> addToken = (start, end) -> tokens.add(document.substring(start, end).toLowerCase());
@@ -38,9 +36,8 @@ public class Indexer {
 			switch (state) {
 				case OutOfToken:
 					if (isTokenCharacter.test(c)) {
+						currTokenStart = i;
 						state = IndexerState.InToken;
-					} else if (isWhitespaceOrPunctuation.test(c) || TOKEN_INNER_CHAR_SET.contains(c)) {
-						currTokenStart = i + 1;
 					}
 					break;
 				case InToken:
@@ -49,28 +46,29 @@ public class Indexer {
 					if (tokenLength > MAX_TOKEN_LENGTH) {
 						state = IndexerState.InInvalidToken;
 					}
-					if (isWhitespaceOrPunctuation.test(c)) {
+					if (TOKEN_INNER_CHAR_SET.contains(c)) {
+						state = IndexerState.InValidTokenUnknownEnd;
+					} else if (!isTokenCharacter.test(c)) {
 						state = IndexerState.OutOfToken;
 						addToken.accept(currTokenStart, safeTokenEnd);
 						currTokenStart = i+1;
-					}
-					if (TOKEN_INNER_CHAR_SET.contains(c)) {
-						state = IndexerState.InValidTokenUnknownEnd;
 					}
 					break;
 				case InValidTokenUnknownEnd:
-					if (isWhitespaceOrPunctuation.test(c)) {
+					if (tokenLength > MAX_TOKEN_LENGTH) {
+						state = IndexerState.InInvalidToken;
+					} else if (isTokenCharacter.test(c)) {
+						state = IndexerState.InToken;
+					} else if (TOKEN_INNER_CHAR_SET.contains(c)) {
+						continue;
+					} else {
 						state = IndexerState.OutOfToken;
 						addToken.accept(currTokenStart, safeTokenEnd);
 						currTokenStart = i+1;
-					} else if (isTokenCharacter.test(c)) {
-						state = IndexerState.InToken;
-					} else if (tokenLength > MAX_TOKEN_LENGTH) {
-						state = IndexerState.InInvalidToken;
 					}
 					break;
 				case InInvalidToken:
-					if (isWhitespaceOrPunctuation.test(c)) {
+					if (! (isTokenCharacter.test(c) || TOKEN_INNER_CHAR_SET.contains(c))) {
 						state = IndexerState.OutOfToken;
 						currTokenStart = i+1;
 					}

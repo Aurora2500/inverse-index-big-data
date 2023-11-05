@@ -49,4 +49,11 @@ class IndexerTest {
 			Set<String> tokens = Indexer.tokenize(text);
 			assertEquals(Set.of("short", "after"), tokens);
 		}
+
+		@Test
+	void indexTags() {
+			String text = "<<hello>> <world>";
+			Set<String> tokens = Indexer.tokenize(text);
+			assertEquals(Set.of("hello", "world"), tokens);
+		}
 }
