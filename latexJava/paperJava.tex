@@ -83,22 +83,32 @@ The \texttt{FileDatalake} class represents access to the source of textual data 
 \item  Function \texttt{readDocument(int document)} reads the text content of a specific document based on its identifier.
 \end{itemize}
 
-\item 
-The \texttt{IndexerState} enumeration defines various states that may occur during the tokenization of a document's text. States such as \textit{InToken}, \textit{InInvalidTokenUnknownEnd}, \textit{InInvalidToken}, and \textit{OutOfToken} describe different tokenization scenarios.
-
 \item
-The \texttt{Indexer} class is responsible for creating an inverted index based on documents stored in the \texttt{FileDatalake} and storing it in the \texttt{Datamart}. The class provides the following functionalities:
+The \texttt{Indexer} class is responsible for creating an inverted index based on documents stored in the \texttt{FileDatalake} and storing it in the \texttt{Datamart}, with the actual implementation being injected as a dependency on creation. The class provides the following functionalities:
 
 \begin{itemize}
-  \item \texttt{tokenize(String document)}: Tokenizes the text content of a document, splitting it into individual words (tokens), removing punctuation, and preparing tokens for indexing.
+  \item \texttt{tokenize(String document)}: Tokenizes the text content of a document, this is done using a state machine pattern that processes the text character by character, trying to be much more efficient than a regular expression.
+		It returns a set of tokens found in the document.
   \item \texttt{index()}: Initiates the indexing process. It creates an inverted index from the available documents in the \texttt{FileDatalake} and stores it in the \texttt{Datamart}.
+		After it finishes, it blocks in a loop, listening in on new documents being added to the datalake, and updating the index accordingly as they are added.
 \end{itemize}
 
-\item
-The \texttt{IndexerTest} class contains a set of unit tests for the \texttt{Indexer} class. These tests verify the correct behavior of the \texttt{tokenize} method in various scenarios (such as checking if it copes with underscores  at the beginning or at the end of words), ensuring the accuracy of tokenization.
+\item 
+The \texttt{IndexerState} enumeration defines the states for the tokenization state machine used by the \texttt{Indexer} class. The states are as follows:
+
+\begin{itemize}
+	\item \texttt{OutOfToken} The state machine is not currently processing a token.
+	\item \texttt{InToken} The state machine is currently processing a token.
+	\item \texttt{InValidTokenUnknownEnd} The state machine is in an ambiguous position, where whenever the current token ends early or continues depends on future characters.
+	\item \texttt{InInvalidToken} The state machine is currently processing an invalid token, and thus should ignore future valid characters until the token ends.
+		This can for example occur when the token is too long, as no one is going to search for tokens that are many times longer than an average word.
+\end{itemize}
 \end{itemize}
 
-Finally the \texttt{Main} class serves as the entry point for the program. It accepts two command-line arguments: the path to the \texttt{datalake} (data source) and \texttt{datamart} (destination for the inverted index). The program creates instances of \texttt{FileDatalake} and \texttt{Datamart} and then initiates the indexing process using the \texttt{Indexer} class.
+Finally the \texttt{Main} class serves as the entry point for the program. It accepts two command-line arguments: the path to the \texttt{datalake} (data source) and \texttt{datamart} (destination for the inverted index).
+The program creates instances of \texttt{FileDatalake} and an instance the \texttt{Datamart} and then initiates the indexing process using the \texttt{Indexer} class.
+Aditionally, this module has various unit tests for ensuring the correctness and robustness of the tokenization implementation,
+as this part is the most complex and error-prone in the project, especially considering that it deals with any arbitrary unvetted text coming in from the internet.
 
 \subsection{Query Engine}
 
