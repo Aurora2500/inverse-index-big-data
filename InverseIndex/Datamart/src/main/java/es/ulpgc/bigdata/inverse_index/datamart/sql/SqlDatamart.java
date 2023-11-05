@@ -14,6 +14,7 @@ public class SqlDatamart implements Datamart {
 		String url =  "jdbc:sqlite:" + path;
 		this.conn = DriverManager.getConnection(url);
 		assertTables();
+		conn.setAutoCommit(false);
 	}
 
 	private void assertTables() throws SQLException {
@@ -57,5 +58,6 @@ public class SqlDatamart implements Datamart {
 			stmt.setInt(2, document);
 			stmt.executeUpdate();
 		}
+		stmt.close();
 	}
 }

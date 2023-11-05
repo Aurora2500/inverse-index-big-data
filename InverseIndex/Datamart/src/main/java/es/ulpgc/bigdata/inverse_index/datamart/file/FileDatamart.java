@@ -11,6 +11,9 @@ import java.util.Set;
 public class FileDatamart implements Datamart {
 	private final Path root;
 
+	private static final int SHORT_LENGTH = 3;
+	private static final String SHORT_DIR = "short";
+
 	public FileDatamart(Path root) throws IOException {
 		this.root = root;
 
@@ -26,9 +29,13 @@ public class FileDatamart implements Datamart {
 	}
 
 	private Path assertWord (String word) throws Exception {
-		//TODO: handle edge cases
-		String beginning = word.substring(0, 2);
-		Path neighbourDir = root.resolve(beginning);
+		Path neighbourDir;
+		if (word.length() <= SHORT_LENGTH) {
+			neighbourDir = root.resolve(SHORT_DIR);
+		} else {
+			String beginning = word.substring(0, 2);
+			neighbourDir = root.resolve(beginning);
+		}
 		if (!Files.isDirectory(neighbourDir)) {
 			if (Files.exists(neighbourDir)) {
 				throw new Exception("Unexpected file in datamart " + neighbourDir);
@@ -42,7 +49,6 @@ public class FileDatamart implements Datamart {
 			}
 			Files.createFile(wordFile);
 		}
-
 		return wordFile;
 	}
 

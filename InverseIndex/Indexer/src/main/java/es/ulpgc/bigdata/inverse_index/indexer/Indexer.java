@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 public class Indexer {
 	private static final int MAX_TOKEN_LENGTH = 20;
-	private static final Set<Character> PUNCTUATION_SET = Set.of('.', ',', ';', ':', '?', '!', '¡', '¿', '(', ')', '*', '"');
+	private static final Set<Character> PUNCTUATION_SET = Set.of('.', ',', ';', ':', '?', '!', '¡', '¿', '(', ')', '*', '"', '[', ']', '“', '$', '’', '/', '\\');
 	private static final Set<Character> TOKEN_INNER_CHAR_SET = Set.of('\'', '-', '_');
 
 	private final FileDatalake datalake;
@@ -96,13 +96,18 @@ public class Indexer {
 		Set<Integer> indexedDocuments = datamart.documents();
 		Set<Integer> datalakeDocuments = datalake.documents();
 		datalakeDocuments.removeAll(indexedDocuments);
+		System.out.println("Indexing " + datalakeDocuments.size() + " documents");
 		for (Integer document: datalakeDocuments) {
+			System.out.println("Indexing document " + document);
 			Set<String> tokens = tokenizeDocument(document);
+			System.out.println("Document " + document + " has " + tokens.size() + " tokens");
 			datamart.add(document, tokens);
+			System.out.println("Document " + document + " indexed");
 		}
 
 		datalake.blockAndListen((document, content) -> {
 			try {
+				System.out.println("Indexing document " + document);
 				Set<String> tokens = tokenize(content);
 				datamart.add(document, tokens);
 			} catch (Exception e) {
