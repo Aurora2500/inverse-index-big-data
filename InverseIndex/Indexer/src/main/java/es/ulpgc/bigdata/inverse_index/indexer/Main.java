@@ -15,7 +15,7 @@ public class Main {
 			System.exit(1);
 		}
 		FileDatalake datalake = new FileDatalake(Path.of(args[0]));
-		Datamart datamart = new FileDatamart(Path.of(args[1]));
+		Datamart datamart = new SqlDatamart(Path.of(args[1]));
 		Indexer indexer = new Indexer(datalake, datamart);
 		indexer.index();
 	}

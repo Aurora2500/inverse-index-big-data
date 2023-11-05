@@ -6,9 +6,15 @@ import java.nio.file.Path;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class SqlDatamart implements Datamart {
 	private final Connection conn;
+	private ScheduledFuture<?> debounceCommitFuture = null;
+	private final ScheduledExecutorService executorService = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+	private final static int DEBOUNCE_TIME_MILLIS = 2000;
 
 	public SqlDatamart(Path path) throws SQLException {
 		String url =  "jdbc:sqlite:" + path;
@@ -52,6 +58,7 @@ public class SqlDatamart implements Datamart {
 
 	@Override
 	public void add(int document, Set<String> tokens) throws Exception {
+		debounceCommit();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO words (word, book) VALUES (?, ?)");
 		for (String token : tokens) {
 			stmt.setString(1, token);
@@ -59,5 +66,19 @@ public class SqlDatamart implements Datamart {
 			stmt.executeUpdate();
 		}
 		stmt.close();
+	}
+
+	private void debounceCommit() {
+		if (debounceCommitFuture != null) {
+			debounceCommitFuture.cancel(false);
+		}
+
+		debounceCommitFuture = executorService.schedule(() -> {
+			try {
+				conn.commit();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}, DEBOUNCE_TIME_MILLIS, TimeUnit.MILLISECONDS);
 	}
 }

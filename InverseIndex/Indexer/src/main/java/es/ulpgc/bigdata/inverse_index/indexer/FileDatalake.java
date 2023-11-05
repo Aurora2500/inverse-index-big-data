@@ -42,7 +42,7 @@ public class FileDatalake {
 	}
 
 	public void startListener() throws IOException {
-		WatchService ws = root.getFileSystem().newWatchService();
+		ws = root.getFileSystem().newWatchService();
 		root.register(ws, java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY);
 	}
 

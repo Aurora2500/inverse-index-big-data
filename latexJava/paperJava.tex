@@ -63,7 +63,7 @@ The \texttt{ContentExtractor} class plays a fundamental role in the process by f
 \item
 The \texttt{FileSystemDatalake} class is responsible for the storage and management of the downloaded textual content. It converts the raw book text into JSON format and stores it in files, with each file named after the respective book's identifier. This class plays a crucial role in creating and maintaining the Datalake directory structure, ensuring organized and efficient data storage.
 \item
-The \texttt{LibroGutenberg} class is pivotal in the process of extracting meaningful information from the downloaded book text. It utilizes regular expressions to search for and identify various attributes, such as the book's title, author, publication date, language, and, most importantly, the book's actual textual content. This class ensures the structured extraction of metadata and book text.
+The \texttt{DocumentParser} class is pivotal in the process of extracting meaningful information from the downloaded book text. It utilizes regular expressions to search for and identify various attributes, such as the book's title, author, publication date, language, and, most importantly, the book's actual textual content. This class ensures the structured extraction of metadata and book text.
 \item
 The \texttt{TimerAPI} class provides an interface for configuring essential parameters related to the book retrieval process. It allows for the adjustment of the execution period, which determines how frequently the system fetches new books. Additionally, it enables users to specify the number of books to download per minute and set a maximum limit for the number of books to retrieve. This class is accessible through an HTTP interface, making it a valuable tool for process customization.
 \item
@@ -112,27 +112,26 @@ as this part is the most complex and error-prone in the project, especially cons
 
 \subsection{Query Engine}
 
-The Query Engine module is responsible for providing an API interface and search functionality for indexed documents. This section provides an overview of the key classes and their interactions within the Query Engine module.
+The Query Engine module is responsible for providing an API interface and search functionality for indexed documents.
+This section provides an overview of the key classes and their interactions within the Query Engine module.
 
 \begin{itemize}
 \item
-The \texttt{Controller} class serves as the controller in the Query Engine module. It is responsible for initializing and running a server that handles client requests. The \texttt{Controller} class invokes the \texttt{startServer} method of the \texttt{SparkWebService} object.
-
+The \texttt{SparkWebService} class utilizes the Spark library to launch an HTTP server. This server listens on a specified port and handles HTTP requests. It provides two endpoints,
+\begin{itemize}
+	\item \texttt{/v1/search}, allowing users to search for documents based on keywords, with a pagination feature for retrieving results in batches.
+	\item \texttt{/v1/document/:id}, allowing users to get a particular document.
+\end{itemize}
 \item
-The \texttt{SparkWebService} class utilizes the Spark library to launch an HTTP server. This server listens on a specified port and handles HTTP requests, particularly GET requests. It provides a single main query, \texttt{/v1/search}, allowing users to search for documents based on keywords.
-
-\item
-The \texttt{SqliteReader} class is responsible for communication with the SQLite database, which stores information about keyword indexes within documents. When the server receives a request with a keyword, the \texttt{SqliteReader} extracts information about the documents containing that keyword from the database.
 
 \item 
 The \texttt{Document} class represents an individual textual document. It includes information such as document ID, date, author, content, title, and language.
 \end{itemize}
 
 
-The \texttt{Main} class contains the \texttt{main} function, which serves as the entry point for the Query Engine module. It primarily initializes a \texttt{Controller} object and starts the API server.
-
-
-The collaboration among these classes is as follows: The Spark server listens for search requests and, upon receiving a query, forwards it to the \texttt{SqliteReader}. The \texttt{SqliteReader} communicates with the SQLite database to retrieve documents containing the specified keyword. The results are processed and returned to the client in JSON format via the Spark server. This allows users to search for documents based on keywords and receive results efficiently.
+The \texttt{Main} class contains the \texttt{main} function, which serves as the entry point for the Query Engine module.
+It accepts two command-line arguments: the path to the \texttt{datalake}, which is where the documents themselves are stored, and to the datamart \texttt{datamart}, which is the index of all the documents.
+It then initializes the \texttt{SparkWebService} class and makes it listen for HTTP requests.
 
 \subsection{Datamart}
 
@@ -158,6 +157,7 @@ The code of this project can be found in the following repository: \url{https://
 \section{Future work}
 
 In the future, the new file datamart could be improved further to be faster using all sorts of different caching techniques to reduce the number of IO operations.
+Aditionally, various parts of the indexer could be improved further by having its own cache and flush features added, so that it doesn't flush all the indexed documents to the datamart one by one.
 
 \end{document}
 
