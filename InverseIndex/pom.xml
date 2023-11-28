@@ -13,6 +13,7 @@
         <module>Crawler</module>
         <module>QueryEngine</module>
         <module>Datamart</module>
+        <module>Clients</module>
     </modules>
 
     <properties>

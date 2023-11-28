@@ -1,12 +1,12 @@
 package es.ulpgc.bigdata.inverse_index.datamart.file;
 
 import es.ulpgc.bigdata.inverse_index.datamart.Datamart;
+import es.ulpgc.bigdata.inverse_index.datamart.Metadata;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class FileDatamart implements Datamart {
 	private final Path root;
@@ -107,4 +107,68 @@ public class FileDatamart implements Datamart {
 			Files.write(wordFile, content);
 		}
 	}
+	@Override
+	public Map<Integer, Metadata> getDocumentMetadata() throws IOException {
+		Map<Integer, Metadata> metadataMap = new HashMap<>();
+
+		Files.list(root).flatMap(groupDir -> {
+			try {
+				return Files.list(groupDir);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}).forEach(wordFile -> {
+			try {
+				Set<Integer> documents = readWordFile(wordFile);
+
+				for (int documentId : documents) {
+					Metadata metadata = readMetadataFromFile(documentId, wordFile);
+					metadataMap.put(documentId, metadata);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		return metadataMap;
+	}
+
+	private Metadata readMetadataFromFile(int documentId, Path wordFile) throws IOException {
+		Path metadataFilePath = wordFile.getParent().resolve("metadata").resolve(documentId + ".txt");
+		List<String> lines = Files.readAllLines(metadataFilePath);
+
+
+		String date = lines.get(0).split(":")[1].trim();
+		String author = lines.get(1).split(":")[1].trim();
+		String title = lines.get(2).split(":")[1].trim();
+		String lang = lines.get(3).split(":")[1].trim();
+		String text = lines.get(3).split(":")[1].trim();
+
+		return new Metadata(documentId, date, author, title, lang, text);
+	}
+	// En FileDatamart
+	@Override
+	public Set<String> getTokensForDocument(int documentId) throws Exception {
+		Set<String> tokens = new HashSet<>();
+		Files.list(root).flatMap(groupDir -> {
+			try {
+				return Files.list(groupDir);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}).forEach(wordFile -> {
+			try {
+				Set<Integer> documents = readWordFile(wordFile);
+
+				if (documents.contains(documentId)) {
+					// Agregar el token asociado a este documento
+					tokens.add(wordFile.getFileName().toString());
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return tokens;
+	}
+
 }
