@@ -28,30 +28,30 @@ public class FileSystemDatalake {
         File file = new File(datalakeRoot, id + ".json");
         try {
             Map<String, String> dat = DocumentParser.transform(id, text);
-            if (dat != null) {
-                File jsonFile = new File(datalakeRoot, id + ".json");
-                if (file.exists()){
-                    try (FileWriter writer = new FileWriter(jsonFile)) {
-                        //converts the data to JSON and write in the file
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        String json = gson.toJson(dat);
-                        writer.write(json);
-                        System.out.println("File '"+ id +".json"+"' has been succesfully updated");
-                    }
-                } else{
-                    try (FileWriter writer = new FileWriter(jsonFile)) {
-                        //converts the data to JSON and write in the file
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        String json = gson.toJson(dat);
-                        writer.write(json);
-                        System.out.println("Saved '" + id + ".json'");
-                    }
-                }
+					if (dat == null) {
+							System.out.println("It couldn't be saved because the content of the book " + id + " is empty");
+					} else {
+							File jsonFile = new File(datalakeRoot, id + ".json");
+							if (file.exists()){
+									try (FileWriter writer = new FileWriter(jsonFile)) {
+											//converts the data to JSON and write in the file
+											Gson gson = new GsonBuilder().setPrettyPrinting().create();
+											String json = gson.toJson(dat);
+											writer.write(json);
+											System.out.println("File '"+ id +".json"+"' has been succesfully updated");
+									}
+							} else{
+									try (FileWriter writer = new FileWriter(jsonFile)) {
+											//converts the data to JSON and write in the file
+											Gson gson = new GsonBuilder().setPrettyPrinting().create();
+											String json = gson.toJson(dat);
+											writer.write(json);
+											System.out.println("Saved '" + id + ".json'");
+									}
+							}
 
-            } else {
-                System.out.println("It couldn't be saved because the content of the book " + id + " is empty");
-            }
-        } catch (IOException e) {
+					}
+				} catch (IOException e) {
             System.out.println("Error while saving " + id + ", with this exception: " + e);
             e.printStackTrace();
         }

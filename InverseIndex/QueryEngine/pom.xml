@@ -63,4 +63,29 @@
 
     </dependencies>
 
+    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>es.ulpgc.bigdata.inverse_index</groupId>
+                <artifactId>Datamart</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </plugin>
+            <plugin>
+                <groupId>es.ulpgc.bigdata.inverse_index</groupId>
+                <artifactId>QueryEngine</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClassPath>true</addClassPath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>es.ulpgc.bigdata.inverse_index.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
