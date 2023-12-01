@@ -70,41 +70,7 @@ public class SqlDatamart implements Datamart {
 		}
 		stmt.close();
 	}
-	@Override
-	public Map<Integer, Metadata> getDocumentMetadata() throws SQLException {
-		Map<Integer, Metadata> metadataMap = new HashMap<>();
-		Statement stmt = conn.createStatement();
-		ResultSet results = stmt.executeQuery("SELECT id, date, author, title, lang FROM books");
-		while(results.next()) {
-			int documentId = results.getInt("id");
-			String date = results.getString("date");
-			String author = results.getString("author");
-			String title = results.getString("title");
-			String lang = results.getString("lang");
-			String text = results.getString("text");
 
-			Metadata metadata = new Metadata(documentId, date, author, title, lang, text);
-			metadataMap.put(documentId, metadata);
-		}
-		return metadataMap;
-	}
-
-	@Override
-	public Set<String> getTokensForDocument(int documentId) throws Exception {
-		Set<String> tokens = new HashSet<>();
-
-		try (PreparedStatement stmt = conn.prepareStatement("SELECT DISTINCT word FROM words WHERE book = ?")) {
-			stmt.setInt(1, documentId);
-			ResultSet results = stmt.executeQuery();
-
-			while (results.next()) {
-				String word = results.getString("word");
-				tokens.add(word);
-			}
-		}
-
-		return tokens;
-	}
 
 	private void debounceCommit() {
 		if (debounceCommitFuture != null) {
