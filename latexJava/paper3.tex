@@ -1,0 +1,197 @@
+\documentclass{article}
+
+\usepackage{minted}
+\usepackage{hyperref}
+
+
+\title{Crawler and Inverted Index in Java}
+
+\newcommand{\authorblock}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
+
+\author{\centering\begin{tabular}{ccc}
+	\authorblock{
+		Aurora Zuoris\\
+		\normalsize{aurora.zuoris101@alu.ulgpc.es}
+	} &
+	\authorblock{
+	Alejandra Ruiz de Adana Fleitas\\
+	\normalsize{alejandra.ruiz104@alu.ulpgc.es}
+	} \\ \\
+	\authorblock{
+	Lam Truong Nguyen\\
+	\normalsize{lam.nguyen101@alu.ulpgc.es}
+	} &
+	\authorblock{
+	Aris Vazdekis Soria\\
+	\normalsize{aris.vazdekis101@alu.ulpgc.es}
+	} \\ \\
+	\authorblock{
+	Jaime Ballesteros Domínguez\\
+	\normalsize{jaime.ballesteros101@alu.ulpgc.es}
+	} &
+	\authorblock{
+	Anna Barbara Król\\
+	\normalsize{anna.krol101@alu.ulpgc.es}
+	}
+\end{tabular}}
+
+\begin{document}
+\maketitle
+\abstract{ 
+In this project, we undertook the task of enhancing search efficiency among a wide variety of text documents. The primary challenge we faced was the need to quickly access documents containing specific terms within an extensive library. Our code encompasses three concurrent modules: Crawler, Indexer and QueryEngine, all working in unison to ensure seamless operation. The project implementation involves a deployment model in a cluster environment, utilising technologies such as Nginx and Docker to ensure scalability and efficient resource utilization. 
+
+
+}
+
+\section{Introduction}
+In today's world there is an ever increasing
+number of documents that are being created and stored digitally.
+Thus the need to easily find and access these documents becomes
+ever more important. The 'Query Engine' module enables searching for and retrieving specific books within this extensive digital library. This paper delves into the systematic refinement and development of the Query Engine, Datamart, and containerization modules, explaining the enhancements introduced to bolster the effectiveness and scalability of our information retrieval system.
+
+
+\section{Methodology}
+
+Our project follows a systematic approach, divided into three major modules: the Crawler,
+Inverted Index and Query Engine. Developing and enhancing our project involved refining the Query Engine module,
+implementing significant changes in the Datamart module, and integrating containerization for improved deployment.
+Our approach included optimizing classes by introducing directory structure configurations, transaction
+management and improving overall code organization.Additionally, we utilised Docker and crafted a Dockerfile to encapsulate the QueryEngine, facilitating seamless deployment.
+
+
+
+\section{Query Engine}
+
+The Query Engine module is responsible for providing an API interface and search functionality for indexed documents.
+This section provides an overview of the key classes and their interactions within the Query Engine module.
+
+\begin{itemize}
+\item
+The \texttt{SparkWebService} class utilizes the Spark library to launch an HTTP server. This server listens on a specified port and handles HTTP requests, particularly GET requests. It provides a single main query, \texttt{/v1/search}, allowing users to search for documents based on keywords.
+\end{itemize}
+
+
+The \texttt{Main} class contains the \texttt{main} function, which serves as the entry point for the Query Engine module.
+It primarily initializes a \texttt{SparkWebService} object and starts the API server.
+
+\section{Datamart Changes}
+
+In this delivery, we have refined Datamart module to introduce enhancements and improvements.
+One change in the functionality is that now the datamart will contain the metadata of the documents, including a short summary of the document.
+This way the query engine can provide more information about the documents without needing to have access to the datalake.
+
+\begin{itemize}
+
+\item
+\texttt{SqlDatamart class} :
+
+This class was improved by adding a debounce mechanism to make commiting to it much more efficient.
+The second version introduces a debounceCommit method that schedules a commit after a specified delay, cancelling any previously scheduled commits.
+This way, the datamart is only committed once after a set of changes, instead of committing after each change.
+
+\item
+\texttt{Metadata class} :
+
+This class is a simple data structure that encapsulates metadata information associated with a document in the inverse index project.
+It provides a convenient way to organize and pass around information about a document.
+It has a constructor that takes values for each of the six metadata final fields:
+\begin{itemize}
+    \item 
+    id: the document ID
+    \item 
+    date: a string representing the date of the document
+    \item 
+    author: a string representing the author of the document
+    \item 
+    title: a string representing the title of the document
+    \item 
+    lang: a string representing the language of the document
+    \item 
+    text: a string representing the text content of the document
+\end{itemize}
+
+The use of final fields ensures that the values of these fields cannot be changed once they are set in the constructor, making the Metadata objects immutable.
+\end{itemize}
+
+\section{Containerization}
+\subsection{Introduction}
+Containerization has become a fundamental aspect of modern software development, providing a streamlined approach to packaging, distributing, and running applications across various environments. In our project, containerization is employed to enhance the deployment and execution process of the QueryEngine application. This section delves into the utilization of Docker and the creation of a Dockerfile to encapsulate the QueryEngine in a containerized environment.
+\subsection{Dockerfile Explanation}
+The approach taken to containerize the QueryEngine was to compile it outside the container into a JAR file, and then use a minimal openjdk image to run the JAR file inside the container.
+This approach was chosen because it is simple and efficient, and it allows us to use the same JAR file in both the containerized and non-containerized environments.
+The Dockerfile is a description used by docker to build a Docker image.
+It sets up an environment for running a QueryEngine in a Docker container.
+It defines volumes for the Datamart data, copies the application JAR file into the container, and specifies the default command to run the Java application.
+This configuration is designed to facilitate the deployment and execution of the QueryEngine in a Dockerized environment.
+
+
+\begin{itemize}
+\item 
+\texttt{FROM openjdk:17} : This line specifies the base image for the Docker image. In our case, it is official OpenJDK 17 image.
+\item
+\texttt{WORKDIR /app} : Sets the working directory inside the container to /app. This is the directory where subsequent commands will be executed.
+\item
+\texttt{VOLUME /datalake} :
+Creates a Docker volume named /datalake. It is used to persist data outside of the container, and in this case to store Datalake data.
+\item
+\texttt{VOLUME /datamart} :
+Creates another Docker volume named /datamart to store Datamart data.
+\item
+\texttt{COPY target/QueryEngine.jar} :
+Copies the JAR file named QueryEngine.jar from the target directory of the build context into the current working directory (/app) inside the Docker container.
+\item
+\texttt{CMD ["java", "-jar", "/app/QueryEngine.jar", "/datalake", "/datamart"]}:
+Specifies the default command to run when the container starts. In this case, it executes the Java application using the JAR file (QueryEngine.jar) located in the /app directory. It also passes /datalake and /datamart as command-line arguments to the Java application, indicating the paths to their directories.
+\end{itemize}
+
+
+\section{Loadbalancer and Nginx configuration}
+\subsection{Loadbalancing}
+The inverted index serves as a fundamental component in information retrieval systems, and ensuring its scalability and responsiveness becomes paramount as the volume of data and user queries increases. Within this context, load balancing with Nginx emerges as a critical mechanism to efficiently distribute query requests among multiple instances of the inverted index and query engine services. The development of large-scale inverted index systems is motivated by the need for efficient and rapid information retrieval. However, as these systems evolve, scaling becomes a challenge, necessitating effective load balancing strategies. 
+We use Nginx as a versatile load balancer within a distributed inverted index project to optimize resource utilization and enhance system performance.
+
+This too is containerized using docker for ease of deployment on any environment.
+\subsection{Nginx configuration for testing purposes}
+
+The provided Nginx configuration represents a basic setup for testing purposes in a distributed system, with a focus on proxying HTTP requests to a Spark server.
+\begin{itemize}
+    \item \texttt{Events Block:}
+    
+    The \texttt{events} block establishes global parameters related to the Nginx worker processes. Specifically, it sets the maximum number of connections per worker process to 1024. This parameterization is critical for controlling resource allocation in a test environment, laying the groundwork for subsequent HTTP request handling.
+
+    \item \texttt{HTTP Block:}
+
+    Within the \texttt{http} block, an \texttt{upstream} directive defines a logical grouping of backend servers under the alias \texttt{spark\_servers}. This block, although configured with a singular backend server at \texttt{192.168.1.57:8080}, is indicative of a preliminary setting for an upstream server group. Such configuration precedes the implementation of load balancing mechanisms in a more comprehensive deployment.
+
+    \item \texttt{Server Block:}
+
+    The \texttt{server} block encapsulates the HTTP server configuration, specifying that it listens on port 80 and is associated with the IP address \texttt{192.168.1.57}. This configuration signifies the entry point for incoming HTTP requests.
+
+    \item \texttt{Location Block for \texttt{/v1/search}:}
+
+    The \texttt{location} block targeting the path \texttt{/v1/search} establishes a \texttt{proxy\_pass} directive, directing requests to the specified backend server group (\texttt{spark\_servers}) at the corresponding path (\texttt{/v1/search}). This configuration delineates the handling of HTTP requests related to search functionality within the proxied environment.
+
+    \item \texttt{Location Block using a Regex:}
+
+    The subsequent \texttt{location} block, utilizing a regular expression \texttt{\^/v1/document/(?<id>\d+)\$}, refines the proxying mechanism for requests matching the specified pattern. Capturing the numeric identifier (\texttt{\$id}) from the matched pattern, this configuration directs requests to the backend server group (\texttt{spark\_servers}) at the path \texttt{/v1/document/} followed by the extracted identifier.
+
+    
+\end{itemize}
+
+
+In summary, this Nginx configuration outlines a rudimentary setup aimed at testing the proxying of HTTP requests to a Spark server. While adhering to the specificities of a controlled test environment, this configuration lays the foundation for subsequent elaboration on load balancing strategies and scalability measures within the distributed system under examination.
+
+\section{Results and conclusions}
+
+In conclusion, the development undertaken in the Query Engine, Datamart, and containerization modules have yielded significant improvements in the overall functionality, efficiency, and deployment of our information retrieval system. Datamart enhancements contribute to clearer code and potential optimization, while improved Query Engine classes ensure a robust API interface and efficient search functionality. The utilisation of the Docker platform, enhances the deployment process by encapsulating the Query Engine.
+The Implementatio on a cluster facilitates distribution and parallelization of tasks, thus improving overall system responsiveness.
+
+The code of this project can be found in the following repository: \url{https://github.com/Aurora2500/inverse-index-big-data}
+
+\section{Future work}
+
+There are various ways in which this project could be improved.
+It might start to be interesting to use caching to improve the performance of the query engine.
+Aditionally it would be of interest to create a front end for the query engine, so that it can be used by users without needing to use the API directly.
+
+\end{document}
