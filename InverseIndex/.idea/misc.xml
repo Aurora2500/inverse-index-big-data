@@ -10,6 +10,8 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/Client/pom.xml" />
+        <option value="$PROJECT_DIR$/Clients/pom.xml" />
         <option value="$PROJECT_DIR$/DatamartTest/pom.xml" />
       </set>
     </option>

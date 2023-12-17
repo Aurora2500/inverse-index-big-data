@@ -16,7 +16,6 @@ public class ContentExtractor {
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
-            //HTTP request
             con.setRequestMethod("GET");
 
             int responseCode = con.getResponseCode();
@@ -27,7 +26,7 @@ public class ContentExtractor {
 
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
-                    response.append("\n"); //add line breaks to maintain the text format
+                    response.append("\n");
                 }
                 in.close();
                 return response.toString();
