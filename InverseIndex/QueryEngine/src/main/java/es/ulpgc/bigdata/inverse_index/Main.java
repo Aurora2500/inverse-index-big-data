@@ -9,13 +9,12 @@ import java.sql.SQLException;
 
 public class Main {
 	public static void main(String[] args) throws SQLException {
-		if (args.length < 2) {
-			System.err.println("The query engine needs a path to the datalake and datamart");
+		if (args.length < 1) {
+			System.err.println("The query engine needs a path to the datamart");
 			System.exit(1);
 		}
-		FileDatalake datalake = new FileDatalake(Path.of(args[0]));
-		Datamart datamart = new SqlDatamart(Path.of(args[1]));
-		SparkWebService webService = new SparkWebService(datalake, datamart);
+		Datamart datamart = new SqlDatamart(Path.of(args[0]));
+		SparkWebService webService = new SparkWebService(datamart);
 		webService.startServer();
 	}
 }

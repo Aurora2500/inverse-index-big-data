@@ -1,7 +1,7 @@
 package es.ulpgc.bigdata.inverse_index.datamart.sql;
 
 import es.ulpgc.bigdata.inverse_index.datamart.Datamart;
-import es.ulpgc.bigdata.inverse_index.datamart.Metadata;
+import es.ulpgc.bigdata.inverse_index.datamart.Document;
 
 import java.nio.file.Path;
 import java.sql.*;
@@ -34,6 +34,15 @@ public class SqlDatamart implements Datamart {
 			"book INTEGER" +
 			")"
 		);
+		stmt.execute("CREATE TABLE IF NOT EXISTS books (" +
+				"id INTEGER, " +
+				"date TEXT, " +
+				"author TEXT, " +
+				"title TEXT, " +
+				"lang TEXT, " +
+				"summary TEXT" +
+				")"
+		);
 	}
 
 	@Override
@@ -44,6 +53,24 @@ public class SqlDatamart implements Datamart {
 		ResultSet results = stmt.executeQuery();
 		while (results.next()) {
 			documents.add(results.getInt(1));
+		}
+		return documents;
+	}
+
+	@Override
+	public Set<Document> indexDocuments(String token) throws Exception {
+		Set<Document> documents = new HashSet<>();
+		PreparedStatement stmt = conn.prepareStatement("SELECT b.id, b.date, b.author, b.title, b.lang, b.summary FROM words w JOIN books b ON b.id = w.book WHERE w.word = ?");
+		stmt.setString(1, token);
+		ResultSet results = stmt.executeQuery();
+		while (results.next()) {
+			documents.add(new Document(
+					results.getInt(1),
+					results.getString(2),
+					results.getString(3),
+					results.getString(4),
+					results.getString(5),
+					results.getString(6)));
 		}
 		return documents;
 	}
@@ -60,17 +87,25 @@ public class SqlDatamart implements Datamart {
 	}
 
 	@Override
-	public void add(int document, Set<String> tokens) throws Exception {
+	public void add(Document document, Set<String> tokens) throws Exception {
 		debounceCommit();
-		PreparedStatement stmt = conn.prepareStatement("INSERT INTO words (word, book) VALUES (?, ?)");
+		PreparedStatement word_stmt = conn.prepareStatement("insert into words (word, book) VALUES (?, ?)");
 		for (String token : tokens) {
-			stmt.setString(1, token);
-			stmt.setInt(2, document);
-			stmt.executeUpdate();
+			word_stmt.setString(1, token);
+			word_stmt.setInt(2, document.id());
+			word_stmt.executeUpdate();
 		}
-		stmt.close();
+		word_stmt.close();
+		PreparedStatement doc_stmt = conn.prepareStatement("INSERT INTO books (id, date, author, title, lang, summary) VALUES (?, ?, ?, ?, ?, ?)");
+		doc_stmt.setInt(1, document.id());
+		doc_stmt.setString(2, document.date());
+		doc_stmt.setString(3, document.author());
+		doc_stmt.setString(4, document.title());
+		doc_stmt.setString(5, document.lang());
+		doc_stmt.setString(6, document.summary());
+		doc_stmt.executeUpdate();
+		doc_stmt.close();
 	}
-
 
 	private void debounceCommit() {
 		if (debounceCommitFuture != null) {

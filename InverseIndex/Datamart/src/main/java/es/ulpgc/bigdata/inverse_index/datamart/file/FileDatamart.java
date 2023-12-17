@@ -1,7 +1,7 @@
 package es.ulpgc.bigdata.inverse_index.datamart.file;
 
 import es.ulpgc.bigdata.inverse_index.datamart.Datamart;
-import es.ulpgc.bigdata.inverse_index.datamart.Metadata;
+import es.ulpgc.bigdata.inverse_index.datamart.Document;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,11 +30,18 @@ public class FileDatamart implements Datamart {
 
 	private Path assertWord (String word) throws Exception {
 		Path neighbourDir;
+		Path indexDir = root.resolve("index");
+		if (!Files.isDirectory(indexDir)) {
+			if (Files.exists(indexDir)) {
+				throw new Exception("Unexpected file in datamart " + indexDir);
+			}
+			Files.createDirectory(indexDir);
+		}
 		if (word.length() <= SHORT_LENGTH) {
-			neighbourDir = root.resolve(SHORT_DIR);
+			neighbourDir = indexDir.resolve(SHORT_DIR);
 		} else {
 			String beginning = word.substring(0, 2);
-			neighbourDir = root.resolve(beginning);
+			neighbourDir = indexDir.resolve(beginning);
 		}
 		if (!Files.isDirectory(neighbourDir)) {
 			if (Files.exists(neighbourDir)) {
@@ -65,10 +72,29 @@ public class FileDatamart implements Datamart {
 		return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
 	}
 
+	private Document readMetadataFromFile(int documentId) throws IOException {
+		Path metadataFilePath = root.getParent().resolve("metadata").resolve(documentId + ".txt");
+		List<String> lines = Files.readAllLines(metadataFilePath);
+
+
+		String date = lines.get(0).split(":")[1].trim();
+		String author = lines.get(1).split(":")[1].trim();
+		String title = lines.get(2).split(":")[1].trim();
+		String lang = lines.get(3).split(":")[1].trim();
+		String text = lines.get(3).split(":")[1].trim();
+
+		return new Document(documentId, date, author, title, lang, text);
+	}
+
 	@Override
 	public Set<Integer> index(String token) throws Exception {
 		Path wordFile = assertWord(token);
 		return readWordFile(wordFile);
+	}
+
+	@Override
+	public Set<Document> indexDocuments(String token) throws Exception {
+		return null;
 	}
 
 	@Override
@@ -91,11 +117,11 @@ public class FileDatamart implements Datamart {
 	}
 
 	@Override
-	public void add(int document, Set<String> tokens) throws Exception {
+	public void add(Document document, Set<String> tokens) throws Exception {
 		for (String token: tokens) {
 			Path wordFile = assertWord(token);
 			Set<Integer> documents = readWordFile(wordFile);
-			documents.add(document);
+			documents.add(document.id());
 			byte[] content = new byte[documents.size() * 4];
 			int i = 0;
 			for (int doc: documents) {
