@@ -11,6 +11,7 @@ import java.nio.file.WatchService;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -35,10 +36,16 @@ public class FileDatalake {
 		return documents;
 	}
 
-	public String readDocument(int document) throws IOException {
+	public DatalakeDocument readDocument(int document) throws IOException {
 		Gson gson = new Gson();
 		JsonObject el = gson.fromJson(Files.readString(root.resolve(document + ".json")), JsonObject.class);
-		return el.get("text").getAsString();
+		return new DatalakeDocument(
+				document,
+				el.get("date").getAsString(),
+				el.get("author").getAsString(),
+				el.get("title").getAsString(),
+				el.get("lang").getAsString(),
+				el.get("text").getAsString());
 	}
 
 	public void startListener() throws IOException {
@@ -46,14 +53,14 @@ public class FileDatalake {
 		root.register(ws, java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY);
 	}
 
-	public void blockAndListen(BiConsumer<Integer, String> documentConsumer) throws IOException, InterruptedException {
+	public void blockAndListen(Consumer<DatalakeDocument> documentConsumer) throws IOException, InterruptedException {
 		for (;;) {
 			WatchKey key = ws.take();
 			for (var event : key.pollEvents()) {
 				String name = event.context().toString();
 				if (!Pattern.compile("\\d+\\.json").asMatchPredicate().test(name)) continue;
 				int document = Integer.parseInt(name.split("\\.")[0]);
-				documentConsumer.accept(document, readDocument(document));
+				documentConsumer.accept(readDocument(document));
 			}
 			boolean valid = key.reset();
 			if (!valid) {
