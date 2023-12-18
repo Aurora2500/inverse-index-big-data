@@ -1,7 +1,6 @@
 package es.ulpgc.bigdata.inverse_index;
 
 import es.ulpgc.bigdata.inverse_index.datamart.Datamart;
-import es.ulpgc.bigdata.inverse_index.datamart.file.FileDatamart;
 import es.ulpgc.bigdata.inverse_index.datamart.sql.SqlDatamart;
 
 import java.nio.file.Path;
