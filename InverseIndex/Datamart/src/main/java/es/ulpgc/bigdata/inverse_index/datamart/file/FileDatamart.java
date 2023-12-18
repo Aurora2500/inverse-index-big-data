@@ -83,7 +83,7 @@ public class FileDatamart implements Datamart {
 		String lang = lines.get(3).split(":")[1].trim();
 		String text = lines.get(3).split(":")[1].trim();
 
-		return new Document(documentId, date, author, title, lang, text);
+		return new Document(documentId, date, author, title, lang, text.length(), text);
 	}
 
 	@Override

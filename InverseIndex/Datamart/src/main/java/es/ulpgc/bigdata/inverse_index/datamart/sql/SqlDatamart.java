@@ -40,6 +40,7 @@ public class SqlDatamart implements Datamart {
 				"author TEXT, " +
 				"title TEXT, " +
 				"lang TEXT, " +
+				"length INTEGER, "  +
 				"summary TEXT" +
 				")"
 		);
@@ -60,7 +61,7 @@ public class SqlDatamart implements Datamart {
 	@Override
 	public Set<Document> indexDocuments(String token) throws Exception {
 		Set<Document> documents = new HashSet<>();
-		PreparedStatement stmt = conn.prepareStatement("SELECT b.id, b.date, b.author, b.title, b.lang, b.summary FROM words w JOIN books b ON b.id = w.book WHERE w.word = ?");
+		PreparedStatement stmt = conn.prepareStatement("SELECT b.id, b.date, b.author, b.title, b.lang, b.length, b.summary FROM words w JOIN books b ON b.id = w.book WHERE w.word = ?");
 		stmt.setString(1, token);
 		ResultSet results = stmt.executeQuery();
 		while (results.next()) {
@@ -70,7 +71,8 @@ public class SqlDatamart implements Datamart {
 					results.getString(3),
 					results.getString(4),
 					results.getString(5),
-					results.getString(6)));
+					results.getInt(6),
+					results.getString(7)));
 		}
 		return documents;
 	}
@@ -96,13 +98,14 @@ public class SqlDatamart implements Datamart {
 			word_stmt.executeUpdate();
 		}
 		word_stmt.close();
-		PreparedStatement doc_stmt = conn.prepareStatement("INSERT INTO books (id, date, author, title, lang, summary) VALUES (?, ?, ?, ?, ?, ?)");
+		PreparedStatement doc_stmt = conn.prepareStatement("INSERT INTO books (id, date, author, title, lang, length, summary) VALUES (?, ?, ?, ?, ?, ?, ?)");
 		doc_stmt.setInt(1, document.id());
 		doc_stmt.setString(2, document.date());
 		doc_stmt.setString(3, document.author());
 		doc_stmt.setString(4, document.title());
 		doc_stmt.setString(5, document.lang());
 		doc_stmt.setString(6, document.summary());
+		doc_stmt.setString(7, document.summary());
 		doc_stmt.executeUpdate();
 		doc_stmt.close();
 	}

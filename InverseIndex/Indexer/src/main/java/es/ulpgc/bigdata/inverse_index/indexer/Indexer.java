@@ -29,16 +29,16 @@ public class Indexer {
 		System.out.println("Indexing " + datalakeDocuments.size() + " documents");
 		for (Integer documentID: datalakeDocuments) {
 			DatalakeDocument document = datalake.readDocument(documentID);
-			System.out.println("Indexing document " + document);
+			System.out.println("Indexing document " + document.id());
 			Set<String> tokens = tokenizeDocument(document);
-			System.out.println("Document " + document + " has " + tokens.size() + " tokens");
+			System.out.println("Document " + document.id() + " has " + tokens.size() + " tokens");
 			datamart.add(document.toDataMart(), tokens);
-			System.out.println("Document " + document + " indexed");
+			System.out.println("Document " + document.id() + " indexed");
 		}
 
 		datalake.blockAndListen((document) -> {
 			try {
-				System.out.println("Indexing document " + document);
+				System.out.println("Indexing document " + document.id());
 				Set<String> tokens = tokenizeDocument(document);
 				datamart.add(document.toDataMart(), tokens);
 			} catch (Exception e) {

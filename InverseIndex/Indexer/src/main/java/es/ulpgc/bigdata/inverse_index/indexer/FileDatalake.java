@@ -41,10 +41,10 @@ public class FileDatalake {
 		JsonObject el = gson.fromJson(Files.readString(root.resolve(document + ".json")), JsonObject.class);
 		return new DatalakeDocument(
 				document,
-				el.get("date").getAsString(),
-				el.get("author").getAsString(),
-				el.get("title").getAsString(),
-				el.get("lang").getAsString(),
+				el.get("date") == null ? null : el.get("date").getAsString(),
+				el.get("author") == null ? null : el.get("author").getAsString(),
+				el.get("title") == null ? null : el.get("title").getAsString(),
+				el.get("lang") == null ? null : el.get("lang").getAsString(),
 				el.get("text").getAsString());
 	}
 
