@@ -28,6 +28,8 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-client/9.4.48.v20220622/jetty-client-9.4.48.v20220622.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/eclipse/jetty/jetty-xml/9.4.48.v20220622/jetty-xml-9.4.48.v20220622.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/eclipse/jetty/websocket/websocket-servlet/9.4.48.v20220622/websocket-servlet-9.4.48.v20220622.jar" path-in-jar="/" />
+      <element id="library" level="project" name="Maven: com.hazelcast:hazelcast:4.0.2" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/hazelcast/hazelcast/4.0.2/hazelcast-4.0.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
