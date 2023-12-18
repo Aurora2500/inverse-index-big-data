@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 public class DocumentParser {
 
     public static Map<String, String> transform(int id, String text) {
-        //this is a list of tuples where each tuple contains the attribute name and an associated regular expression for searching that attribute in the text
         List<AbstractMap.SimpleEntry<String, Pattern>> attributes = Arrays.asList(
                 new AbstractMap.SimpleEntry<>("title", Pattern.compile("Title: (.*)", Pattern.CASE_INSENSITIVE)),
                 new AbstractMap.SimpleEntry<>("author", Pattern.compile("(?:Author|Creator|Contributor): (.*)", Pattern.CASE_INSENSITIVE)),
@@ -15,8 +14,6 @@ public class DocumentParser {
                 new AbstractMap.SimpleEntry<>("lang", Pattern.compile("Language: (.*)", Pattern.CASE_INSENSITIVE))
         );
 
-        //these are regular expressions that search for the start and end marks of the book within the text.
-        //these marks have the format "*** START OF ... " and "END OF ... ***," are used to delimit the main content of the book.
         Pattern startPattern = Pattern.compile("(\\*\\*\\* START OF (THE|THIS) PROJECT GUTENBERG EBOOK.*?\\*\\*\\*)");
         Pattern endPattern = Pattern.compile("(\\*\\*\\* END OF (THE|THIS) PROJECT GUTENBERG EBOOK.*?\\*\\*\\*)");
 
