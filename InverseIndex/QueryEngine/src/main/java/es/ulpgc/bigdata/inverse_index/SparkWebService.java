@@ -25,6 +25,7 @@ public class SparkWebService {
 
         Spark.get("/v1/search", (request, response) -> {
             String word = request.queryParams("word");
+            String backendServer = request.headers("X-Backend-Server");
             if (word == null) {
                 response.status(400);
                 return "Missing word parameter\n";
@@ -38,9 +39,12 @@ public class SparkWebService {
             try {
                 Set<Document> documents = datamart.indexDocuments(word);
                 List<Document> sortedDocuments = documents.stream().sorted((a, b) -> b.id() - a.id()).toList();
-                response.header("X-Backend-Server", "ServidorSpark");
+
+                String serverMsg = ("Connected to server: " + backendServer + "\n\n");
+                System.out.println(serverMsg);
+
                 response.type("application/json");
-                response.type("application/json");
+
                 JsonArray responseJson = new JsonArray();
                 for (int i = offset; i < Math.min(offset + limit, sortedDocuments.size()); i++) {
                     Document document = sortedDocuments.get(i);
@@ -56,12 +60,16 @@ public class SparkWebService {
 
         Spark.get("/v1/document/:id", (request, response) -> {
             String idStr = request.params(":id");
+            String backendServer = request.headers("X-Backend-Server");
             if (idStr == null) {
                 response.status(400);
                 return "Missing id parameter\n";
             }
-          response.header("X-Backend-Server", "ServidorSpark");
-          int id = Integer.parseInt(request.params(":id"));
+
+            String serverMsg = ("Connected to server: " + backendServer + "\n\n");
+            System.out.println(serverMsg);
+
+            int id = Integer.parseInt(request.params(":id"));
             response.redirect("https://www.gutenberg.org/cache/epub/" + id + "/pg" + id + ".txt");
             return "";
         });
@@ -71,7 +79,7 @@ public class SparkWebService {
         JsonObject el = new JsonObject();
         el.addProperty("id", doc.id());
         if (doc.title() != null) {
-	        el.addProperty("title", doc.title());
+            el.addProperty("title", doc.title());
         }
         if (doc.author() != null) {
           el.addProperty("author", doc.author());

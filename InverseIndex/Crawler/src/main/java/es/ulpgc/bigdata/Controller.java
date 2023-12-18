@@ -19,14 +19,42 @@ public class Controller {
         Timer timer = new Timer();
         task = new TimerTask() {
             public void run() {
-                startBookDownloading();
+                executeProgram();
             }
         };
         timer.scheduleAtFixedRate(task, 0, TimerAPI.getTimerPeriod());
     }
 
-    private void startBookDownloading() {
-        BookDownloader bookDownloader = new BookDownloader(datalakeRoot);
-        bookDownloader.startDownloading();
+    private void executeProgram() {
+        ContentExtractor contentExtractor = new ContentExtractor();
+        FileSystemDatalake dataLake = new FileSystemDatalake(datalakeRoot);
+
+        int id = 1;
+        int millisecondsPerMinute = 60_000;
+
+        while (id <= TimerAPI.getMaxBooks()) {
+            long startTime = System.currentTimeMillis();
+            int booksDownloadedThisMinute = 0;
+
+
+            while (booksDownloadedThisMinute < TimerAPI.getBooksPerMinute()) {
+                String bookText = ContentExtractor.textExtractor(id);
+
+                if (bookText != null) {
+                    FileSystemDatalake.saveText(id, bookText);
+                    booksDownloadedThisMinute++;
+                }
+                id++;
+            }
+
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            if (elapsedTime < millisecondsPerMinute) {
+                try {
+                    Thread.sleep(millisecondsPerMinute - elapsedTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

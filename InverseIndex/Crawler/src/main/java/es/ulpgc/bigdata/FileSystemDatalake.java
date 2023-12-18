@@ -11,7 +11,9 @@ public class FileSystemDatalake {
 
     public FileSystemDatalake(File datalakeRoot) {
         FileSystemDatalake.datalakeRoot = datalakeRoot;
+        //check if the root directory of the Datalake already exists
         if (!datalakeRoot.exists()) {
+            //attempt to create the root directory
             if (FileSystemDatalake.datalakeRoot.mkdirs()) {
                 System.out.println("The Datalake has been successfully created at: " + datalakeRoot.getAbsolutePath());
             } else {
@@ -32,6 +34,7 @@ public class FileSystemDatalake {
 							File jsonFile = new File(datalakeRoot, id + ".json");
 							if (file.exists()){
 									try (FileWriter writer = new FileWriter(jsonFile)) {
+											//converts the data to JSON and write in the file
 											Gson gson = new GsonBuilder().setPrettyPrinting().create();
 											String json = gson.toJson(dat);
 											writer.write(json);
@@ -39,6 +42,7 @@ public class FileSystemDatalake {
 									}
 							} else{
 									try (FileWriter writer = new FileWriter(jsonFile)) {
+											//converts the data to JSON and write in the file
 											Gson gson = new GsonBuilder().setPrettyPrinting().create();
 											String json = gson.toJson(dat);
 											writer.write(json);

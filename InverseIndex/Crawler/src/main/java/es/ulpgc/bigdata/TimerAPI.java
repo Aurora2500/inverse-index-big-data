@@ -3,9 +3,9 @@ package es.ulpgc.bigdata;
 import static spark.Spark.*;
 
 public class TimerAPI {
-    private static long timerPeriod = 5 * 60_000;
-    private static int booksPerMinute = 100;
-    private static int maxBooks = 1000;
+    private static long timerPeriod = 5 * 60_000; // 5 minutes in milliseconds by default
+    private static int booksPerMinute = 100; // 100 books per minute by default
+    private static int maxBooks = 1000; // 1000 max books by default
 
     public static void setupTimerAPI() {
         post("/v1/execution/configuration", (request, response) -> {

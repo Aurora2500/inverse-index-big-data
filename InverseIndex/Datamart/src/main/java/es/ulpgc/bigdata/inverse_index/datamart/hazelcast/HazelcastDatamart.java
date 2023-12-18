@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class HazelcastDatamart implements Datamart {
 	HazelcastInstance instance;
 
-	HazelcastDatamart() {
+	public HazelcastDatamart() {
 		Config config = new Config();
 		instance = Hazelcast.newHazelcastInstance(config);
 	}
