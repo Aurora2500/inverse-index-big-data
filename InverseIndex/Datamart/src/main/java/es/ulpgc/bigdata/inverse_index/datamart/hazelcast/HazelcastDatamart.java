@@ -1,9 +1,6 @@
 package es.ulpgc.bigdata.inverse_index.datamart.hazelcast;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.SerializationConfig;
-import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.config.TcpIpConfig;
+import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -20,12 +17,15 @@ public class HazelcastDatamart implements Datamart {
 	public HazelcastDatamart() {
 		SerializerConfig sc = new SerializerConfig();
 		sc.setImplementation(new DocumentSerializer()).setTypeClass(Document.class);
-		Config config = new Config();
-		config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-		config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
-		config.getNetworkConfig().getJoin().getTcpIpConfig().addMember("127.0.0.1");
-		config.getSerializationConfig().addSerializerConfig(sc);
-		instance = Hazelcast.newHazelcastInstance(config);
+		Config cfg = new Config();
+		NetworkConfig network = cfg.getNetworkConfig();
+		JoinConfig join = network.getJoin();
+		join.getMulticastConfig().setEnabled(false);
+		join.getTcpIpConfig().addMember("192.168.217.188")
+				.addMember("192.168.217.168").setEnabled(true);
+		network.getInterfaces().setEnabled(true)
+				.addInterface("192.168.217.168").addInterface("192.168.217.188");
+		instance = Hazelcast.newHazelcastInstance(cfg);
 	}
 
 	@Override
