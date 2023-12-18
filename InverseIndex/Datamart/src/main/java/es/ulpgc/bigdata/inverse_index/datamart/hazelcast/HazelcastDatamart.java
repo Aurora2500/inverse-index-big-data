@@ -21,10 +21,10 @@ public class HazelcastDatamart implements Datamart {
 		NetworkConfig network = cfg.getNetworkConfig();
 		JoinConfig join = network.getJoin();
 		join.getMulticastConfig().setEnabled(false);
-		join.getTcpIpConfig().addMember("192.168.217.188")
-				.addMember("192.168.217.168").setEnabled(true);
-		network.getInterfaces().setEnabled(true)
-				.addInterface("192.168.217.168").addInterface("192.168.217.188");
+		//list of ip members joining setup
+		join.getTcpIpConfig().setEnabled(true).addMember("192.168.217.188").addMember("192.168.217.168");
+		//list of ip members interface setup
+		network.getInterfaces().setEnabled(true).addInterface("192.168.217.168").addInterface("192.168.217.188");
 		instance = Hazelcast.newHazelcastInstance(cfg);
 	}
 
