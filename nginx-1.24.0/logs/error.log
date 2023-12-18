@@ -1,0 +1,23 @@
+2023/12/04 11:01:13 [emerg] 23772#165076: no "events" section in configuration
+2023/12/04 11:02:25 [emerg] 148540#230000: no "events" section in configuration
+2023/12/04 11:03:35 [emerg] 46232#49284: no "events" section in configuration
+2023/12/04 11:05:52 [emerg] 27320#16096: host not found in upstream "queryengine" in C:\nginx-1.24.0\nginx-1.24.0/conf/nginx.conf:12
+2023/12/04 11:15:43 [emerg] 178060#104928: invalid URL prefix in C:\nginx-1.24.0\nginx-1.24.0/conf/nginx.conf:12
+2023/12/04 11:20:23 [emerg] 59188#113016: no "events" section in configuration
+2023/12/04 11:20:28 [emerg] 81068#158532: no "events" section in configuration
+2023/12/04 11:23:23 [emerg] 18880#132260: no "events" section in configuration
+2023/12/04 11:28:58 [notice] 244964#257012: signal process started
+2023/12/04 11:44:20 [error] 122296#224948: *6 CreateFile() "C:\nginx-1.24.0\nginx-1.24.0/html/favicon.ico" failed (2: El sistema no puede encontrar el archivo especificado), client: 192.168.56.1, server: 192.168.56.1, request: "GET /favicon.ico HTTP/1.1", host: "192.168.56.1", referrer: "http://192.168.56.1/"
+2023/12/04 11:46:03 [notice] 188640#187140: signal process started
+2023/12/04 11:46:03 [emerg] 117040#107688: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 11:48:39 [notice] 213692#1424: signal process started
+2023/12/04 12:52:05 [emerg] 169768#83048: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 12:54:54 [emerg] 15600#45888: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 12:55:29 [emerg] 69892#142544: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 12:55:56 [emerg] 196792#233188: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 12:56:09 [emerg] 99140#132280: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 12:56:16 [emerg] 258496#226932: bind() to 0.0.0.0:8080 failed (10013: Intento de acceso a un socket no permitido por sus permisos de acceso)
+2023/12/04 12:59:37 [error] 99560#218756: *1 CreateFile() "C:\nginx-1.24.0\nginx-1.24.0/html/favicon.ico" failed (2: El sistema no puede encontrar el archivo especificado), client: 192.168.56.1, server: 192.168.56.1, request: "GET /favicon.ico HTTP/1.1", host: "192.168.56.1", referrer: "http://192.168.56.1/"
+2023/12/10 09:36:24 [emerg] 149384#217804: "http" directive is not allowed here in C:\Users\Usuario\Documents\GitHub\inverse-index-big-data\nginx-1.24.0/conf/nginx.conf:4
+2023/12/10 09:38:19 [emerg] 223828#85220: "http" directive is not allowed here in C:\Users\Usuario\Documents\GitHub\inverse-index-big-data\nginx-1.24.0/conf/nginx.conf:4
+2023/12/11 13:31:46 [emerg] 228020#78616: "http" directive is not allowed here in C:\Users\Usuario\Documents\GitHub\inverse-index-big-data\nginx-1.24.0/conf/nginx.conf:4
